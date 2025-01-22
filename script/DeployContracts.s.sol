@@ -1,22 +1,27 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
+import "forge-std/Script.sol";
 import "../src/ClaimLogic.sol";
-import "../src/ClaimBeacon.sol";
-import "../src/ClaimProxy.sol";
+import "@openzeppelin/contracts/proxy/beacon/UpgradeableBeacon.sol";
+import "@openzeppelin/contracts/proxy/beacon/BeaconProxy.sol";
 
-contract DeployContracts {
-    ClaimLogic public logic;
-    ClaimBeacon public beacon;
+contract DeployScript is Script {
+    function run() external {
+        vm.startBroadcast();
 
-    function deploy() public {
-        // Deploy logic implementation
-        logic = new ClaimLogic();
+        // Deploy the logic contract
+        ClaimLogic logic = new ClaimLogic();
 
-        // Deploy beacon
-        beacon = new ClaimBeacon(address(logic), msg.sender);
+        // Deploy the beacon
+        UpgradeableBeacon beacon = new UpgradeableBeacon(address(logic), msg.sender);
 
-        // Deploy a proxy (for demonstration)
-        ClaimProxy proxy = new ClaimProxy(address(beacon), "");
+        // Deploy the proxy
+        BeaconProxy proxy = new BeaconProxy(
+            address(beacon),
+            abi.encodeWithSignature("initialize()")
+        );
+
+        vm.stopBroadcast();
     }
 }

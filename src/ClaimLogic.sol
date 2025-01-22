@@ -1,7 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-contract ClaimLogic {
+import "lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/Initializable.sol";
+import "lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/UUPSUpgradeable.sol";
+import "lib/openzeppelin-contracts-upgradeable/contracts/access/OwnableUpgradeable.sol";
+
+contract ClaimLogic is Initializable, UUPSUpgradeable, OwnableUpgradeable {
     struct Claim {
         address claimer;
         string title;
@@ -19,6 +23,16 @@ contract ClaimLogic {
         string coordinates,
         string description
     );
+
+    /// @custom:oz-upgrades-unsafe-allow constructor
+    constructor() {
+        _disableInitializers();
+    }
+
+    function initialize(address initialOwner) public initializer {
+        __Ownable_init(initialOwner); // Set the owner
+        __UUPSUpgradeable_init(); // Initialize UUPSUpgradeable
+    }
 
     function mintClaim(
         string memory title,
@@ -40,4 +54,8 @@ contract ClaimLogic {
         emit ClaimMinted(claimId, msg.sender, title, coordinates, description);
         claimCounter++;
     }
+
+    function _authorizeUpgrade(
+        address newImplementation
+    ) internal override onlyOwner {}
 }
