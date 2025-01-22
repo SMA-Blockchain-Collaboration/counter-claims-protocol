@@ -30,11 +30,53 @@ The Beacon Proxy Pattern is used in this project to:
 
 Follow the steps below to set up the project locally.
 
-### 1. Prerequisites
+### Prerequisites
 Ensure you have the following installed:
 - [Foundry](https://book.getfoundry.sh/getting-started/installation.html): A smart contract development framework.
-  To install Foundry, run:
-  ```
-  curl -L https://foundry.paradigm.xyz | bash
-  foundryup
- ```
+  - Install Foundry by running:
+    ```bash
+    curl -L https://foundry.paradigm.xyz | bash
+    foundryup
+    ```
+- Git
+
+---
+
+1. Clone the Repository
+Clone this repository to your local machine:
+```bash
+git clone https://github.com/your-username/counter-claims-protocol.git
+cd counter-claims-protocol
+```
+
+2. Initialize Submodules
+This project uses Git submodules to manage dependencies (e.g., OpenZeppelin contracts). Initialize and update the submodules by running:
+
+```bash
+git submodule update --init --recursive
+```
+
+3. Install Foundry Dependencies
+Install the necessary dependencies using forge:
+```bash
+forge install
+```
+4. Test the Project
+Run the test suite to ensure everything is functioning correctly:
+```bash
+forge test
+```
+
+## Contributing
+To contribute:
+
+1. Create a feature branch:
+```bash
+git checkout -b feature/your-feature-name
+```
+
+2. Make your changes and write tests.
+3. Push your branch and open a pull request.
+
+## License
+This project is licensed under the MIT License. See the LICENSE file for more details.
