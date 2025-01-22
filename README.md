@@ -1,66 +1,40 @@
-## Foundry
+# Counter Claims Protocol
 
-**Foundry is a blazing fast, portable and modular toolkit for Ethereum application development written in Rust.**
+This repository contains the smart contracts for the **Counter Claims Protocol**, a system that allows users authenticated with a wallet to mint "Claims" on the blockchain. Each claim includes:
+- The wallet address of the claimer
+- The title of the place being claimed
+- A set of geographic coordinates
+- A description of the claim
 
-Foundry consists of:
+## How This Project Uses the Beacon Proxy Pattern
 
--   **Forge**: Ethereum testing framework (like Truffle, Hardhat and DappTools).
--   **Cast**: Swiss army knife for interacting with EVM smart contracts, sending transactions and getting chain data.
--   **Anvil**: Local Ethereum node, akin to Ganache, Hardhat Network.
--   **Chisel**: Fast, utilitarian, and verbose solidity REPL.
+The **Beacon Proxy Pattern** is an upgradeable smart contract architecture. It consists of three main components:
+1. **Beacon Contract**: Stores the address of the current logic implementation.
+2. **Proxy Contracts**: Lightweight contracts that delegate all calls to the logic implementation provided by the Beacon.
+3. **Logic Implementation**: The smart contract that contains the actual functionality (e.g., minting claims).
 
-## Documentation
+### Why the Beacon Proxy Pattern?
+The Beacon Proxy Pattern is used in this project to:
+- Allow **multiple Claim instances** to share the same logic implementation, saving on deployment costs.
+- Enable **easy upgrades** to the logic without redeploying individual Claim contracts.
+- Maintain **unique data storage** for each Proxy Contract (e.g., individual claims).
 
-https://book.getfoundry.sh/
+### How It Works in This Project
+1. A user interacts with a Proxy Contract.
+2. The Proxy delegates all calls to the Logic Implementation via the Beacon.
+3. The Beacon ensures all Proxies use the latest version of the Logic Implementation.
 
-## Usage
+---
 
-### Build
+## Getting Started
 
-```shell
-$ forge build
-```
+Follow the steps below to set up the project locally.
 
-### Test
-
-```shell
-$ forge test
-```
-
-### Format
-
-```shell
-$ forge fmt
-```
-
-### Gas Snapshots
-
-```shell
-$ forge snapshot
-```
-
-### Anvil
-
-```shell
-$ anvil
-```
-
-### Deploy
-
-```shell
-$ forge script script/Counter.s.sol:CounterScript --rpc-url <your_rpc_url> --private-key <your_private_key>
-```
-
-### Cast
-
-```shell
-$ cast <subcommand>
-```
-
-### Help
-
-```shell
-$ forge --help
-$ anvil --help
-$ cast --help
-```
+### 1. Prerequisites
+Ensure you have the following installed:
+- [Foundry](https://book.getfoundry.sh/getting-started/installation.html): A smart contract development framework.
+  To install Foundry, run:
+  ```
+  curl -L https://foundry.paradigm.xyz | bash
+  foundryup
+ ```
