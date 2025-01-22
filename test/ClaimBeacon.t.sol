@@ -2,6 +2,7 @@
 pragma solidity ^0.8.0;
 
 import "forge-std/Test.sol";
+import "openzeppelin-contracts/contracts/access/Ownable.sol"; // Import OwnableUpgradeable
 import "../src/ClaimLogic.sol";
 import "../src/ClaimBeacon.sol";
 
@@ -38,11 +39,11 @@ contract ClaimBeaconTest is Test {
         // Arrange: Deploy new logic contract
         newLogic = new ClaimLogic();
 
-        // Act & Assert: Expect custom error for non-owner
+        // Act & Assert: Expect the custom error from OpenZeppelin's Ownable
         vm.prank(address(0x1234)); // Simulate call from non-owner
         vm.expectRevert(
             abi.encodeWithSelector(
-                ClaimBeacon.OwnableUnauthorizedAccount.selector,
+                OwnableUpgradeable.OwnableUnauthorizedAccount.selector, // Use the correct error
                 address(0x1234)
             )
         );
