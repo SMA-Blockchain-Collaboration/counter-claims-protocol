@@ -1,5 +1,4 @@
 # Compiler files
-lib/
 cache/
 out/
 
@@ -13,5 +12,3 @@ docs/
 
 # Dotenv file
 .env
-
-
