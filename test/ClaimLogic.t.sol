@@ -14,10 +14,13 @@ contract ClaimLogicTest is Test {
 
     ClaimLogic proxyLogic;
 
+    //this test is causing an error
     function setUp() public {
         // Deploy the initial implementation
         logic = new ClaimLogic();
-        logic.initialize(address(this)); // Pass the test contract as the owner
+
+        //line below caused the error, because logic is being initialized indirectly in proxy
+        //logic.initialize(address(this)); // Pass the test contract as the owner
 
         // Deploy the beacon with the initial implementation
         beacon = new UpgradeableBeacon(address(logic), address(this));
@@ -32,7 +35,8 @@ contract ClaimLogicTest is Test {
         );
         proxyLogic = ClaimLogic(address(proxy));
     }
-
+    
+    //warning here
     function testInitialize() public {
         // Verify initialization
         assertEq(proxyLogic.owner(), address(this));
