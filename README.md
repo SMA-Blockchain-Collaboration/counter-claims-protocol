@@ -33,7 +33,7 @@ Follow the steps below to set up the project locally.
 ### Prerequisites
 Ensure you have the following installed:
 - [Foundry](https://book.getfoundry.sh/getting-started/installation.html): A smart contract development framework.
-  - Install Foundry by running:
+  - Install Foundry by running the following commands. NOTE:  If you’re using Windows, you’ll need to install and use Git BASH or WSL as your terminal, since Foundryup currently doesn’t support Powershell or Command Prompt (Cmd). Please click the link above for the manual:
     ```bash
     curl -L https://foundry.paradigm.xyz | bash
     foundryup
@@ -45,7 +45,7 @@ Ensure you have the following installed:
 1. Clone the Repository
 Clone this repository to your local machine:
 ```bash
-git clone https://github.com/your-username/counter-claims-protocol.git
+git clone https://github.com/SMA-Blockchain-Collaboration/counter-claims-protocol.git
 cd counter-claims-protocol
 ```
 
