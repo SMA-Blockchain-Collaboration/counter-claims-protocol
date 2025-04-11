@@ -4,10 +4,7 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/proxy/beacon/UpgradeableBeacon.sol";
 
 contract ClaimBeacon is UpgradeableBeacon {
-    constructor(
-        address initialImplementation,
-        address owner
-    ) UpgradeableBeacon(initialImplementation, owner) {
+    constructor(address initialImplementation, address owner) UpgradeableBeacon(initialImplementation, owner) {
         transferOwnership(owner); // Transfer ownership to the specified owner
     }
 

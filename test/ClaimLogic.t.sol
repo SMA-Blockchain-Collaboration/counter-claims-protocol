@@ -26,16 +26,10 @@ contract ClaimLogicTest is Test {
         beacon = new UpgradeableBeacon(address(logic), address(this));
 
         // Deploy the proxy pointing to the beacon
-        proxy = new BeaconProxy(
-            address(beacon),
-            abi.encodeWithSelector(
-                ClaimLogic.initialize.selector,
-                address(this)
-            )
-        );
+        proxy = new BeaconProxy(address(beacon), abi.encodeWithSelector(ClaimLogic.initialize.selector, address(this)));
         proxyLogic = ClaimLogic(address(proxy));
     }
-    
+
     //warning here
     function testInitialize() public {
         // Verify initialization
@@ -47,12 +41,8 @@ contract ClaimLogicTest is Test {
         proxyLogic.mintClaim("Title", "123.456,789.012", "Description");
 
         // Verify the claim details
-        (
-            address claimer,
-            string memory title,
-            string memory coordinates,
-            string memory description
-        ) = proxyLogic.claims(0);
+        (address claimer, string memory title, string memory coordinates, string memory description) =
+            proxyLogic.claims(0);
 
         assertEq(claimer, address(this));
         assertEq(title, "Title");

@@ -17,11 +17,7 @@ contract ClaimLogic is Initializable, UUPSUpgradeable, OwnableUpgradeable {
     uint256 public claimCounter;
 
     event ClaimMinted(
-        uint256 indexed claimId,
-        address indexed claimer,
-        string title,
-        string coordinates,
-        string description
+        uint256 indexed claimId, address indexed claimer, string title, string coordinates, string description
     );
 
     /// @custom:oz-upgrades-unsafe-allow constructor
@@ -34,28 +30,17 @@ contract ClaimLogic is Initializable, UUPSUpgradeable, OwnableUpgradeable {
         __UUPSUpgradeable_init(); // Initialize UUPSUpgradeable
     }
 
-    function mintClaim(
-        string memory title,
-        string memory coordinates,
-        string memory description
-    ) public {
+    function mintClaim(string memory title, string memory coordinates, string memory description) public {
         require(bytes(title).length > 0, "Title cannot be empty");
         require(bytes(coordinates).length > 0, "Coordinates cannot be empty");
         require(bytes(description).length > 0, "Description cannot be empty");
 
         uint256 claimId = claimCounter;
-        claims[claimId] = Claim({
-            claimer: msg.sender,
-            title: title,
-            coordinates: coordinates,
-            description: description
-        });
+        claims[claimId] = Claim({claimer: msg.sender, title: title, coordinates: coordinates, description: description});
 
         emit ClaimMinted(claimId, msg.sender, title, coordinates, description);
         claimCounter++;
     }
 
-    function _authorizeUpgrade(
-        address newImplementation
-    ) internal override onlyOwner {}
+    function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
 }
