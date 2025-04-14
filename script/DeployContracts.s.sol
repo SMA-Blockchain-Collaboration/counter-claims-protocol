@@ -17,7 +17,7 @@ contract DeployScript is Script {
         UpgradeableBeacon beacon = new UpgradeableBeacon(address(logic), msg.sender);
 
         // Deploy the proxy
-        BeaconProxy proxy = new BeaconProxy(address(beacon), abi.encodeWithSignature("initialize()"));
+        BeaconProxy proxy = new BeaconProxy(address(beacon), abi.encodeWithSignature("initialize(address)", msg.sender));
 
         vm.stopBroadcast();
     }
