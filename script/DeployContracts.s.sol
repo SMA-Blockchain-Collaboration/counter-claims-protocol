@@ -3,6 +3,8 @@ pragma solidity ^0.8.0;
 
 import "forge-std/Script.sol";
 import "../src/ClaimLogic.sol";
+import "../src/ClaimBeacon.sol";
+import "../src/ClaimProxy.sol";
 import "@openzeppelin/contracts/proxy/beacon/UpgradeableBeacon.sol";
 import "@openzeppelin/contracts/proxy/beacon/BeaconProxy.sol";
 
@@ -14,10 +16,10 @@ contract DeployScript is Script {
         ClaimLogic logic = new ClaimLogic();
 
         // Deploy the beacon
-        UpgradeableBeacon beacon = new UpgradeableBeacon(address(logic), msg.sender);
+        ClaimBeacon beacon = new ClaimBeacon(address(logic), msg.sender);
 
         // Deploy the proxy
-        BeaconProxy proxy = new BeaconProxy(address(beacon), abi.encodeWithSignature("initialize(address)", msg.sender));
+        ClaimProxy proxy = new ClaimProxy(address(beacon), abi.encodeWithSignature("initialize(address)", msg.sender));
 
         vm.stopBroadcast();
     }
