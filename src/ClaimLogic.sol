@@ -15,6 +15,9 @@ contract ClaimLogic is Initializable, UUPSUpgradeable, OwnableUpgradeable {
 
     mapping(uint256 => Claim) public claims;
     uint256 public claimCounter;
+    address public earthClaim;
+    uint256 public earthClaimId;
+    address public earthWalletAddress;
 
     event ClaimMinted(
         uint256 indexed claimId, address indexed claimer, string title, string coordinates, string description
@@ -45,21 +48,33 @@ contract ClaimLogic is Initializable, UUPSUpgradeable, OwnableUpgradeable {
     // mint two claims that have the same title, coordinates, and description
     // one of the claims goes to the user, while the other claim is held by the Earth claim
     function mint2Claims(string memory title, string memory coordinates, string memory description) public {
-      mintClaim(title, coordinates, description);
-      mintClaim(title, coordinates, description);
+      require(bytes(title).length > 0, "Title cannot be empty");
+      require(bytes(coordinates).length > 0, "Coordinates cannot be empty");
+      require(bytes(description).length > 0, "Description cannot be empty");
+
+      claims[claimId] = Claim({claimer: msg.sender, title: title, coordinates: coordinates, description: description});
+      claims[claimId+1] = Claim({claimer: earthWalletAddress, title: title, coordinates: coordinates, description: description});
+      emit ClaimMinted(claimId, msg.sender, title, coordinates, description);
+      emit ClaimMinted(claimId, earthWalletAddress, title, coordinates, description);
+      claimCounter+=2;
     }
 
     // checks to see if an Earth claim already exists. if so, then does not mint the earth claim.
     // otherwise, mints the earth claim with preset title, coordinates, and description
     function mintEarth() public {
+      
+      //if claimId or earthClaim or earthWalletAddress exists, then does not run code below
+
       string title = "";
       string coordinates = "";
       string description = "";
-
       claimId = claimCounter;
 
       //need to set claimer as either a contract, the blockchain, or sma account 
       claims[claimId] = Claim({claimer: "", title: title, coordinates: coordinates, description: description});
+      
+      earthClaim = claims[claimId];
+      earthClaimId = claimId;
 
       claimCounter++;
     }
