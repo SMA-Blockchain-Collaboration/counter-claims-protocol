@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "./ClaimEarth.sol";
+import "./EarthWallet.sol";
 
 // allows for the deployment of wallet-to-claim (1-1) pairs
 // everything is in contract & claimId pairings. 
@@ -13,7 +13,7 @@ contract DeployEarth {
   function deployEarth(address claimContract, uint256 claimId) external returns (address){
     bytes32 salt = keccak256(abi.encodePacked(claimContract, claimId));
     bytes memory bytecode = abi.encodePacked(
-      type(ClaimEarth).creationCode,
+      type(EarthWallet).creationCode,
       abi.encode(claimContract, claimId)
     );
     
@@ -33,7 +33,7 @@ contract DeployEarth {
   function getAddress(address claimContract, uint256 claimId) public view returns (address){
     bytes32 salt = keccak256(abi.encodePacked(claimContract, claimId));
     bytes memory bytecode = abi.encodePacked(
-      type(ClaimEarth).creationCode,
+      type(EarthWallet).creationCode,
       abi.encode(tokenContract, tokenId)
     )
 
