@@ -42,5 +42,27 @@ contract ClaimLogic is Initializable, UUPSUpgradeable, OwnableUpgradeable {
         claimCounter++;
     }
 
+    // mint two claims that have the same title, coordinates, and description
+    // one of the claims goes to the user, while the other claim is held by the Earth claim
+    function mint2Claims(string memory title, string memory coordinates, string memory description) public {
+      mintClaim(title, coordinates, description);
+      mintClaim(title, coordinates, description);
+    }
+
+    // checks to see if an Earth claim already exists. if so, then does not mint the earth claim.
+    // otherwise, mints the earth claim with preset title, coordinates, and description
+    function mintEarth() public {
+      string title = "";
+      string coordinates = "";
+      string description = "";
+
+      claimId = claimCounter;
+
+      //need to set claimer as either a contract, the blockchain, or sma account 
+      claims[claimId] = Claim({claimer: "", title: title, coordinates: coordinates, description: description});
+
+      claimCounter++;
+    }
+
     function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
 }
