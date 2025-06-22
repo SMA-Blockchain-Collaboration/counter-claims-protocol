@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "./ClaimLogic";
+import "./ClaimLogic.sol";
 
 interface IClaimLogic {
     function getClaimer(uint256 claimId) external view returns (address);

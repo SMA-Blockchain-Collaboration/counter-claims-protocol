@@ -5,7 +5,7 @@ import "lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/Initializab
 import "lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/UUPSUpgradeable.sol";
 import "lib/openzeppelin-contracts-upgradeable/contracts/access/OwnableUpgradeable.sol";
 
-import "./DeployEarthWallet";
+import "./DeployEarthWallet.sol";
 
 contract ClaimLogic is Initializable, UUPSUpgradeable, OwnableUpgradeable {
     struct Claim {
