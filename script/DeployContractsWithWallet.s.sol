@@ -13,13 +13,13 @@ import "@openzeppelin/contracts/proxy/beacon/BeaconProxy.sol";
 contract DeployScript is Script {
     function run() external {
         vm.startBroadcast();
-      
+
         // Deploy the logic contract
         ClaimLogic logic = new ClaimLogic();
         logic.initialize(msg.sender);
-        
+
         DeployEarthWallet earthFactory = new DeployEarthWallet();
-        
+
         //Depending on how it is written, can mint Earth here, and lock it so it's non-transferrable
 
         // deploy the Earth Wallet from address with claimId 0

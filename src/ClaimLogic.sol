@@ -28,7 +28,7 @@ contract ClaimLogic is Initializable, UUPSUpgradeable, OwnableUpgradeable {
     );
 
     event EarthClaimMinted(
-        uint256 indexed claimId, address indexed claimer, string title, string coordinates, string description 
+        uint256 indexed claimId, address indexed claimer, string title, string coordinates, string description
     );
 
     /// @custom:oz-upgrades-unsafe-allow constructor
@@ -39,8 +39,8 @@ contract ClaimLogic is Initializable, UUPSUpgradeable, OwnableUpgradeable {
     function initialize(address initialOwner, address factoryAddress) public initializer {
         __Ownable_init(initialOwner); // Set the owner
         __UUPSUpgradeable_init(); // Initialize UUPSUpgradeable
-        
-        require(!isEarthClaimMinted, "Earth claim already exists"); 
+
+        require(!isEarthClaimMinted, "Earth claim already exists");
         //if claimId or earthClaim or earthWalletAddress exists, then does not run code below
 
         string title = "";
@@ -48,15 +48,15 @@ contract ClaimLogic is Initializable, UUPSUpgradeable, OwnableUpgradeable {
         string description = "";
         claimId = claimCounter;
 
-        //need to set claimer as either a contract, the blockchain, or sma account 
+        //need to set claimer as either a contract, the blockchain, or sma account
         claims[claimId] = Claim({claimer: "", title: title, coordinates: coordinates, description: description});
-        
+
         earthClaim = claims[claimId];
         earthClaimId = claimId;
-        
+
         factory = factoryAddress;
         claimCounter++;
-        emit EarthClaimMinted(title, coordinates, description)
+        emit EarthClaimMinted(title, coordinates, description);
     }
 
     function mintClaim(string memory title, string memory coordinates, string memory description) public {
@@ -74,36 +74,37 @@ contract ClaimLogic is Initializable, UUPSUpgradeable, OwnableUpgradeable {
     // mint two claims that have the same title, coordinates, and description
     // one of the claims goes to the user, while the other claim is held by the Earth claim
     function mint2Claims(string memory title, string memory coordinates, string memory description) public {
-      require(bytes(title).length > 0, "Title cannot be empty");
-      require(bytes(coordinates).length > 0, "Coordinates cannot be empty");
-      require(bytes(description).length > 0, "Description cannot be empty");
-      
-      uint256 claimId = claimCounter;
+        require(bytes(title).length > 0, "Title cannot be empty");
+        require(bytes(coordinates).length > 0, "Coordinates cannot be empty");
+        require(bytes(description).length > 0, "Description cannot be empty");
 
-      claims[claimId] = Claim({claimer: msg.sender, title: title, coordinates: coordinates, description: description});
-      claims[claimId+1] = Claim({claimer: earthWalletAddress, title: title, coordinates: coordinates, description: description});
-      emit ClaimMinted(claimId, msg.sender, title, coordinates, description);
-      emit ClaimMinted(claimId, earthWalletAddress, title, coordinates, description);
-      claimCounter+=2;
+        uint256 claimId = claimCounter;
+
+        claims[claimId] = Claim({claimer: msg.sender, title: title, coordinates: coordinates, description: description});
+        claims[claimId + 1] =
+            Claim({claimer: earthWalletAddress, title: title, coordinates: coordinates, description: description});
+        emit ClaimMinted(claimId, msg.sender, title, coordinates, description);
+        emit ClaimMinted(claimId, earthWalletAddress, title, coordinates, description);
+        claimCounter += 2;
     }
 
     function ownerOf(uint256 claimId) public view returns (address) {
-      if (claimId = earthClaimId) {
-        //if the claimId is the one of the claim held by the TBA, then cast earthWalletFactory to a DeployEarthWallet type
-        //then return the getAddress to find the token's TBA account
-        return DeployEarthWallet(earthWalletFactory).getAddress(address(this), claimId); 
-      }
-      Claim storage claim = claims[claimId];
-      return claim.claimer
+        if (claimId = earthClaimId) {
+            //if the claimId is the one of the claim held by the TBA, then cast earthWalletFactory to a DeployEarthWallet type
+            //then return the getAddress to find the token's TBA account
+            return DeployEarthWallet(earthWalletFactory).getAddress(address(this), claimId);
+        }
+        Claim storage claim = claims[claimId];
+        return claim.claimer;
     }
 
     function getClaimer(uint256 claimId) external view returns (address) {
-      return claims[claimId].claimer;
+        return claims[claimId].claimer;
     }
     // checks to see if an Earth claim already exists. if so, then does not mint the earth claim.
     // otherwise, mints the earth claim with preset title, coordinates, and description
     //function mintEarth() public {
-    //  require(!isEarthClaimMinted, "Earth claim already exists"); 
+    //  require(!isEarthClaimMinted, "Earth claim already exists");
     //  //if claimId or earthClaim or earthWalletAddress exists, then does not run code below
 
     //  string title = "";
@@ -111,9 +112,9 @@ contract ClaimLogic is Initializable, UUPSUpgradeable, OwnableUpgradeable {
     //  string description = "";
     //  claimId = claimCounter;
 
-    //  //need to set claimer as either a contract, the blockchain, or sma account 
+    //  //need to set claimer as either a contract, the blockchain, or sma account
     //  claims[claimId] = Claim({claimer: "", title: title, coordinates: coordinates, description: description});
-    //  
+    //
     //  earthClaim = claims[claimId];
     //  earthClaimId = claimId;
 
