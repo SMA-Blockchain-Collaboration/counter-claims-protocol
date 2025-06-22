@@ -5,9 +5,9 @@ import "./EarthWallet.sol";
 
 // allows for the deployment of wallet-to-claim (1-1) pairs
 // everything is in contract & claimId pairings. 
-contract DeployEarth {
+contract DeployEarthWallet {
   //event for potential The Graph indexing
-  event DeployedEarth(address account);
+  event DeployedEarthWallet(address account);
 
   //deploys the single Earth Claim wallet, and emits an event upon completion. 
   function deployEarth(address claimContract, uint256 claimId) external returns (address){
@@ -24,7 +24,7 @@ contract DeployEarth {
       if iszero(account) { revert(0,0) }
     }
 
-    emit DeployedEarth()
+    emit DeployedEarthWallet(account)
     return account;
   }
 

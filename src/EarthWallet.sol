@@ -1,7 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts/interfaces/IERC721.sol"
+import "./ClaimLogic"
+
+interface IClaimLogic {
+  function getClaimer(uint256 claimId) external view returns (address);
+}
 
 contract ClaimEarth { 
   address public immutable claimContract;
@@ -13,9 +17,8 @@ contract ClaimEarth {
   }
 
   // ensures only the owner of the claim/NFT can call functions of this contract (execute)
-  // will need to change for the purposes of the claims NOT being NFTs
-  modifier onlyNFT() {
-    require(msg.sender == IERC721(tokenContract).ownerOf(tokenId), "Not NFT owner");
+  modifier onlyClaimOwner() {
+    require(msg.sender ==  IClaimLogic(claimContract).getClaimer(claimId), "Not claim owner");
     _;
   }
 
