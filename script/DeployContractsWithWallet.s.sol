@@ -14,16 +14,19 @@ contract DeployScript is Script {
     function run() external {
         vm.startBroadcast();
 
+        DeployEarthWallet earthFactory = new DeployEarthWallet();
+
         // Deploy the logic contract
         ClaimLogic logic = new ClaimLogic();
-        logic.initialize(msg.sender);
 
-        DeployEarthWallet earthFactory = new DeployEarthWallet();
+        address earthFactoryAddress = earthFactory.getAddress(address(logic), 0);
+
+        logic.initialize(msg.sender, earthFactoryAddress);
 
         //Depending on how it is written, can mint Earth here, and lock it so it's non-transferrable
 
         // deploy the Earth Wallet from address with claimId 0
-        address earthWalletAddress = earthFactory.deploy(address(logic), 0);
+        address earthWalletAddress = earthFactory.deployEarth(address(logic), 0);
 
         // Deploy the beacon
         ClaimBeacon beacon = new ClaimBeacon(address(logic), msg.sender);

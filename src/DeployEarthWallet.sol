@@ -29,7 +29,7 @@ contract DeployEarthWallet {
     //useful for systems that need to know the address in advance.
     function getAddress(address claimContract, uint256 claimId) public view returns (address) {
         bytes32 salt = keccak256(abi.encodePacked(claimContract, claimId));
-        bytes memory bytecode = abi.encodePacked(type(EarthWallet).creationCode, abi.encode(tokenContract, tokenId));
+        bytes memory bytecode = abi.encodePacked(type(EarthWallet).creationCode, abi.encode(claimContract, claimId));
 
         bytes32 hash = keccak256(abi.encodePacked(bytes1(0xff), address(this), salt, keccak256(bytecode)));
 

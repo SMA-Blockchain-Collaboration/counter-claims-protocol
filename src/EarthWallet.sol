@@ -7,7 +7,7 @@ interface IClaimLogic {
     function getClaimer(uint256 claimId) external view returns (address);
 }
 
-contract ClaimEarth {
+contract EarthWallet {
     address public immutable claimContract;
     uint256 public immutable claimId;
 
@@ -23,7 +23,7 @@ contract ClaimEarth {
     }
 
     // uses a low-level function (call) to support contract interactions and ETH transfers
-    function execute(address to, uint256 value, bytes calldata data) external onlyNFT returns (bytes memory) {
+    function execute(address to, uint256 value, bytes calldata data) external onlyClaimOwner returns (bytes memory) {
         (bool success, bytes memory result) = to.call{value: value}(data);
         require(success, "Call failed");
         return result;

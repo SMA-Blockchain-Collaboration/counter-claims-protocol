@@ -20,6 +20,7 @@ contract ClaimLogic is Initializable, UUPSUpgradeable, OwnableUpgradeable {
     Claim public earthClaim;
     uint256 public earthClaimId;
     address public earthWalletFactory;
+    address public earthWalletAddress;
 
     bool public isEarthClaimMinted = false;
 
@@ -43,20 +44,23 @@ contract ClaimLogic is Initializable, UUPSUpgradeable, OwnableUpgradeable {
         require(!isEarthClaimMinted, "Earth claim already exists");
         //if claimId or earthClaim or earthWalletAddress exists, then does not run code below
 
-        string title = "";
-        string coordinates = "";
-        string description = "";
-        claimId = claimCounter;
+        string memory title = "";
+        string memory coordinates = "";
+        string memory description = "";
 
         //need to set claimer as either a contract, the blockchain, or sma account
-        claims[claimId] = Claim({claimer: "", title: title, coordinates: coordinates, description: description});
+        claims[claimCounter] = Claim({claimer: msg.sender, title: title, coordinates: coordinates, description: description});
 
-        earthClaim = claims[claimId];
-        earthClaimId = claimId;
+        earthClaim = claims[claimCounter];
+        earthClaimId = claimCounter;
 
-        factory = factoryAddress;
+        earthWalletFactory = factoryAddress;
+        earthWalletAddress = DeployEarthWallet(earthWalletFactory).getAddress(address(this), claimCounter);
+        
         claimCounter++;
-        emit EarthClaimMinted(title, coordinates, description);
+        
+        //need to set claimer as either a contract, the blockchain, or sma account
+        emit EarthClaimMinted(earthClaimId, msg.sender, title, coordinates, description);
     }
 
     function mintClaim(string memory title, string memory coordinates, string memory description) public {
@@ -89,7 +93,7 @@ contract ClaimLogic is Initializable, UUPSUpgradeable, OwnableUpgradeable {
     }
 
     function ownerOf(uint256 claimId) public view returns (address) {
-        if (claimId = earthClaimId) {
+        if (claimId == earthClaimId) {
             //if the claimId is the one of the claim held by the TBA, then cast earthWalletFactory to a DeployEarthWallet type
             //then return the getAddress to find the token's TBA account
             return DeployEarthWallet(earthWalletFactory).getAddress(address(this), claimId);
