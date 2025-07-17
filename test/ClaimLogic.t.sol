@@ -13,9 +13,13 @@ contract ClaimLogicTest is Test {
     BeaconProxy proxy;
 
     ClaimLogic proxyLogic;
+    DeployEarthWallet earthFactory;
 
     //this test is causing an error
     function setUp() public {
+        //deploy an earth factory
+        earthFactory = new DeployEarthWallet();
+
         // Deploy the initial implementation
         logic = new ClaimLogic();
 
@@ -26,7 +30,7 @@ contract ClaimLogicTest is Test {
         beacon = new UpgradeableBeacon(address(logic), address(this));
 
         // Deploy the proxy pointing to the beacon
-        proxy = new BeaconProxy(address(beacon), abi.encodeWithSelector(ClaimLogic.initialize.selector, address(this)));
+        proxy = new BeaconProxy(address(beacon), abi.encodeWithSelector(ClaimLogic.initialize.selector, address(this), address(earthFactory)));
         proxyLogic = ClaimLogic(address(proxy));
     }
 
@@ -34,6 +38,7 @@ contract ClaimLogicTest is Test {
     function testInitialize() public {
         // Verify initialization
         assertEq(proxyLogic.owner(), address(this));
+        assertEq(proxyLogic.earthWalletFactory(), address(earthFactory));
     }
 
     function testMintClaim() public {
@@ -42,7 +47,7 @@ contract ClaimLogicTest is Test {
 
         // Verify the claim details
         (address claimer, string memory title, string memory coordinates, string memory description) =
-            proxyLogic.claims(0);
+            proxyLogic.claims(1);
 
         assertEq(claimer, address(this));
         assertEq(title, "Title");

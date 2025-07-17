@@ -17,13 +17,15 @@ contract ClaimLogic is Initializable, UUPSUpgradeable, OwnableUpgradeable {
 
     mapping(uint256 => Claim) public claims;
     uint256 public claimCounter;
+    
+    //Earth specific variables
     Claim public earthClaim;
     uint256 public earthClaimId;
     address public earthWalletFactory;
     address public earthWalletAddress;
-
     bool public isEarthClaimMinted = false;
-
+    
+    //events that claims have been minted
     event ClaimMinted(
         uint256 indexed claimId, address indexed claimer, string title, string coordinates, string description
     );
@@ -44,24 +46,32 @@ contract ClaimLogic is Initializable, UUPSUpgradeable, OwnableUpgradeable {
         require(!isEarthClaimMinted, "Earth claim already exists");
         //if claimId or earthClaim or earthWalletAddress exists, then does not run code below
 
-        string memory title = "";
-        string memory coordinates = "";
-        string memory description = "";
+        string memory title = "Earth";
+        string memory coordinates = "0,0";
+        string memory description = "The root claim that represents the Earth";
+      
+        //deploy the TBA wallet
+        address deployedWallet = DeployEarthWallet(factoryAddress).deploy(address(this), claimCounter);
 
         //need to set claimer as either a contract, the blockchain, or sma account
         claims[claimCounter] =
-            Claim({claimer: msg.sender, title: title, coordinates: coordinates, description: description});
+            Claim({claimer: initialOwner, title: title, coordinates: coordinates, description: description});
 
         earthClaim = claims[claimCounter];
         earthClaimId = claimCounter;
 
         earthWalletFactory = factoryAddress;
-        earthWalletAddress = DeployEarthWallet(earthWalletFactory).getAddress(address(this), claimCounter);
 
         claimCounter++;
+        isEarthClaimMinted = true;
 
         //need to set claimer as either a contract, the blockchain, or sma account
         emit EarthClaimMinted(earthClaimId, msg.sender, title, coordinates, description);
+    }
+
+    function linkEarthWallet(address walletAddress) external onlyOwner{
+      require(earthWalletAddress == address(0), "Earth wallet already linked");
+      earthWalletAddress = walletAddress
     }
 
     function mintClaim(string memory title, string memory coordinates, string memory description) public {
@@ -86,8 +96,13 @@ contract ClaimLogic is Initializable, UUPSUpgradeable, OwnableUpgradeable {
         uint256 claimId = claimCounter;
 
         claims[claimId] = Claim({claimer: msg.sender, title: title, coordinates: coordinates, description: description});
+
+        //claim that goes to the earth wallet
         claims[claimId + 1] =
             Claim({claimer: earthWalletAddress, title: title, coordinates: coordinates, description: description});
+        
+
+        //emit that both claims have been minted
         emit ClaimMinted(claimId, msg.sender, title, coordinates, description);
         emit ClaimMinted(claimId, earthWalletAddress, title, coordinates, description);
         claimCounter += 2;
@@ -106,26 +121,10 @@ contract ClaimLogic is Initializable, UUPSUpgradeable, OwnableUpgradeable {
     function getClaimer(uint256 claimId) external view returns (address) {
         return claims[claimId].claimer;
     }
-    // checks to see if an Earth claim already exists. if so, then does not mint the earth claim.
-    // otherwise, mints the earth claim with preset title, coordinates, and description
-    //function mintEarth() public {
-    //  require(!isEarthClaimMinted, "Earth claim already exists");
-    //  //if claimId or earthClaim or earthWalletAddress exists, then does not run code below
 
-    //  string title = "";
-    //  string coordinates = "";
-    //  string description = "";
-    //  claimId = claimCounter;
-
-    //  //need to set claimer as either a contract, the blockchain, or sma account
-    //  claims[claimId] = Claim({claimer: "", title: title, coordinates: coordinates, description: description});
-    //
-    //  earthClaim = claims[claimId];
-    //  earthClaimId = claimId;
-
-    //  claimCounter++;
-    //  emit EarthClaimMinted(title, coordinates, description)
-    //}
-
+    function getEarthWallet() external view returns (address) {
+        return earthWalletAddress;
+    }
+    
     function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
 }

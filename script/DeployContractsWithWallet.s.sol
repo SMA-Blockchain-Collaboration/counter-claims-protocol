@@ -16,23 +16,27 @@ contract DeployScript is Script {
 
         DeployEarthWallet earthFactory = new DeployEarthWallet();
 
+        //address earthFactoryAddress = earthFactory.getAddress(address(logic), 0);
         // Deploy the logic contract
         ClaimLogic logic = new ClaimLogic();
-
-        address earthFactoryAddress = earthFactory.getAddress(address(logic), 0);
-
-        logic.initialize(msg.sender, earthFactoryAddress);
-
-        //Depending on how it is written, can mint Earth here, and lock it so it's non-transferrable
-
-        // deploy the Earth Wallet from address with claimId 0
-        address earthWalletAddress = earthFactory.deployEarth(address(logic), 0);
 
         // Deploy the beacon
         ClaimBeacon beacon = new ClaimBeacon(address(logic), msg.sender);
 
         // Deploy the proxy
-        ClaimProxy proxy = new ClaimProxy(address(beacon), abi.encodeWithSignature("initialize(address)", msg.sender));
+        ClaimProxy proxy = new ClaimProxy(address(beacon), abi.encodeWithSignature("initialize(address)", msg.sender, address(earthFactory)));
+
+        ClaimLogic claimLogic = new ClaimLogic(address(proxy));
+
+        // deploy the Earth Wallet from address with claimId 0
+        address earthWalletAddress = earthFactory.deployEarth(address(claimLogic), 0);
+
+        claimLogic.linkEarthWallet(earthWalletAddress)
+        
+        console.log("ClaimLogic Proxy deployed at:", address(proxy));
+        console.log("Earth Wallet deployed at:", earthWalletAddress);
+ 
+        //Depending on how it is written, can mint Earth here, and lock it so it's non-transferrable
 
         vm.stopBroadcast();
     }
