@@ -17,14 +17,14 @@ contract ClaimLogic is Initializable, UUPSUpgradeable, OwnableUpgradeable {
 
     mapping(uint256 => Claim) public claims;
     uint256 public claimCounter;
-    
+
     //Earth specific variables
     Claim public earthClaim;
     uint256 public earthClaimId;
     address public earthWalletFactory;
     address public earthWalletAddress;
     bool public isEarthClaimMinted = false;
-    
+
     //events that claims have been minted
     event ClaimMinted(
         uint256 indexed claimId, address indexed claimer, string title, string coordinates, string description
@@ -49,9 +49,9 @@ contract ClaimLogic is Initializable, UUPSUpgradeable, OwnableUpgradeable {
         string memory title = "Earth";
         string memory coordinates = "0,0";
         string memory description = "The root claim that represents the Earth";
-      
+
         //deploy the TBA wallet
-        address deployedWallet = DeployEarthWallet(factoryAddress).deploy(address(this), claimCounter);
+        address deployedWallet = DeployEarthWallet(factoryAddress).deployEarth(address(this), claimCounter);
 
         //need to set claimer as either a contract, the blockchain, or sma account
         claims[claimCounter] =
@@ -69,9 +69,9 @@ contract ClaimLogic is Initializable, UUPSUpgradeable, OwnableUpgradeable {
         emit EarthClaimMinted(earthClaimId, msg.sender, title, coordinates, description);
     }
 
-    function linkEarthWallet(address walletAddress) external onlyOwner{
-      require(earthWalletAddress == address(0), "Earth wallet already linked");
-      earthWalletAddress = walletAddress
+    function linkEarthWallet(address walletAddress) external onlyOwner {
+        require(earthWalletAddress == address(0), "Earth wallet already linked");
+        earthWalletAddress = walletAddress;
     }
 
     function mintClaim(string memory title, string memory coordinates, string memory description) public {
@@ -100,7 +100,6 @@ contract ClaimLogic is Initializable, UUPSUpgradeable, OwnableUpgradeable {
         //claim that goes to the earth wallet
         claims[claimId + 1] =
             Claim({claimer: earthWalletAddress, title: title, coordinates: coordinates, description: description});
-        
 
         //emit that both claims have been minted
         emit ClaimMinted(claimId, msg.sender, title, coordinates, description);
@@ -125,6 +124,6 @@ contract ClaimLogic is Initializable, UUPSUpgradeable, OwnableUpgradeable {
     function getEarthWallet() external view returns (address) {
         return earthWalletAddress;
     }
-    
+
     function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
 }

@@ -30,7 +30,10 @@ contract ClaimLogicTest is Test {
         beacon = new UpgradeableBeacon(address(logic), address(this));
 
         // Deploy the proxy pointing to the beacon
-        proxy = new BeaconProxy(address(beacon), abi.encodeWithSelector(ClaimLogic.initialize.selector, address(this), address(earthFactory)));
+        proxy = new BeaconProxy(
+            address(beacon),
+            abi.encodeWithSelector(ClaimLogic.initialize.selector, address(this), address(earthFactory))
+        );
         proxyLogic = ClaimLogic(address(proxy));
     }
 
