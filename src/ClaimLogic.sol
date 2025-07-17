@@ -49,16 +49,17 @@ contract ClaimLogic is Initializable, UUPSUpgradeable, OwnableUpgradeable {
         string memory description = "";
 
         //need to set claimer as either a contract, the blockchain, or sma account
-        claims[claimCounter] = Claim({claimer: msg.sender, title: title, coordinates: coordinates, description: description});
+        claims[claimCounter] =
+            Claim({claimer: msg.sender, title: title, coordinates: coordinates, description: description});
 
         earthClaim = claims[claimCounter];
         earthClaimId = claimCounter;
 
         earthWalletFactory = factoryAddress;
         earthWalletAddress = DeployEarthWallet(earthWalletFactory).getAddress(address(this), claimCounter);
-        
+
         claimCounter++;
-        
+
         //need to set claimer as either a contract, the blockchain, or sma account
         emit EarthClaimMinted(earthClaimId, msg.sender, title, coordinates, description);
     }
