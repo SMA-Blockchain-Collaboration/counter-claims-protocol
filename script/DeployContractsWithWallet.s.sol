@@ -1,7 +1,6 @@
-// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
-
-import "forge-std/Script.sol";
+// SPDX-License-Identifier: MIT 
+pragma solidity ^0.8.0; 
+import "forge-std/Script.sol"; 
 import "../src/ClaimLogic.sol";
 import "../src/ClaimBeacon.sol";
 import "../src/ClaimProxy.sol";
@@ -10,7 +9,7 @@ import "../src/DeployEarthWallet.sol";
 import "@openzeppelin/contracts/proxy/beacon/UpgradeableBeacon.sol";
 import "@openzeppelin/contracts/proxy/beacon/BeaconProxy.sol";
 
-contract DeployScript is Script {
+contract DeployContractsWithWallet is Script {
     function run() external {
         vm.startBroadcast();
 
@@ -25,7 +24,7 @@ contract DeployScript is Script {
 
         // Deploy the proxy
         ClaimProxy proxy = new ClaimProxy(
-            address(beacon), abi.encodeWithSignature("initialize(address)", msg.sender, address(earthFactory))
+            address(beacon), abi.encodeWithSignature("initialize(address,address)", msg.sender, address(earthFactory))
         );
 
         ClaimLogic claimLogic = ClaimLogic(address(proxy));

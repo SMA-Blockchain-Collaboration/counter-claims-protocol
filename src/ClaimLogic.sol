@@ -51,7 +51,7 @@ contract ClaimLogic is Initializable, UUPSUpgradeable, OwnableUpgradeable {
         string memory description = "The root claim that represents the Earth";
 
         //deploy the TBA wallet
-        address deployedWallet = DeployEarthWallet(factoryAddress).deployEarth(address(this), claimCounter);
+        //address deployedWallet = DeployEarthWallet(factoryAddress).deployEarth(address(this), claimCounter);
 
         //need to set claimer as either a contract, the blockchain, or sma account
         claims[claimCounter] =
@@ -66,7 +66,7 @@ contract ClaimLogic is Initializable, UUPSUpgradeable, OwnableUpgradeable {
         isEarthClaimMinted = true;
 
         //need to set claimer as either a contract, the blockchain, or sma account
-        emit EarthClaimMinted(earthClaimId, msg.sender, title, coordinates, description);
+        emit EarthClaimMinted(earthClaimId, initialOwner, title, coordinates, description);
     }
 
     function linkEarthWallet(address walletAddress) external onlyOwner {
@@ -92,6 +92,7 @@ contract ClaimLogic is Initializable, UUPSUpgradeable, OwnableUpgradeable {
         require(bytes(title).length > 0, "Title cannot be empty");
         require(bytes(coordinates).length > 0, "Coordinates cannot be empty");
         require(bytes(description).length > 0, "Description cannot be empty");
+        require(earthWalletAddress != address(0), "Earth wallet not linked yet");
 
         uint256 claimId = claimCounter;
 
