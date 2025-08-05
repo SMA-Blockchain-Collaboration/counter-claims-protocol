@@ -10,6 +10,7 @@ import "./DeployEarthWallet.sol";
 
 contract ClaimLogic is Initializable, ERC721Upgradeable, UUPSUpgradeable, OwnableUpgradeable {
     struct Claim {
+        address claimer;
         string title;
         string coordinates;
         string description;
@@ -52,9 +53,8 @@ contract ClaimLogic is Initializable, ERC721Upgradeable, UUPSUpgradeable, Ownabl
         string memory description = "The root claim that represents the Earth";
 
         //need to set claimer as either a contract, the blockchain, or sma account
-        claims[claimCounter] =
-            Claim({claimer: initialOwner, title: title, coordinates: coordinates, description: description});
-        _safeMint(initialOowner, claimCounter);
+        claims[claimCounter] = Claim({claimer: initialOwner, title: title, coordinates: coordinates, description: description});
+        _safeMint(initialOwner, claimCounter);
 
         earthClaim = claims[claimCounter];
         earthClaimId = claimCounter;
@@ -76,7 +76,7 @@ contract ClaimLogic is Initializable, ERC721Upgradeable, UUPSUpgradeable, Ownabl
         require(bytes(description).length > 0, "Description cannot be empty");
 
         uint256 claimId = claimCounter;
-        claims[claimId] = Claim({title: title, coordinates: coordinates, description: description});
+        claims[claimId] = Claim({claimer: msg.sender, title: title, coordinates: coordinates, description: description});
         _safeMint(msg.sender, claimId);
 
         emit ClaimMinted(claimId, msg.sender, title, coordinates, description);
@@ -92,26 +92,26 @@ contract ClaimLogic is Initializable, ERC721Upgradeable, UUPSUpgradeable, Ownabl
         require(earthWalletAddress != address(0), "Earth wallet not linked yet");
 
         uint256 claimId1 = claimCounter;
-        uint256 claimId2 = claimCounter+1;
+        uint256 claimId2 = claimCounter + 1;
 
-        claims[claimId1] = Claim({title: title, coordinates: coordinates, description: description});
-        claims[claimId2] = Claim({title: title, coordinates: coordinates, description: description});
+        claims[claimId1] = Claim({claimer: msg.sender, title: title, coordinates: coordinates, description: description});
+        claims[claimId2] = Claim({claimer: earthWalletAddress, title: title, coordinates: coordinates, description: description});
 
         _safeMint(msg.sender, claimId1);
-        _safeMint(msg.sender, claimId2);
+        _safeMint(earthWalletAddress, claimId2);
 
         //emit that both claims have been minted
-        emit ClaimMinted(claimId, msg.sender, title, coordinates, description);
-        emit ClaimMinted(claimId, earthWalletAddress, title, coordinates, description);
+        emit ClaimMinted(claimId1, msg.sender, title, coordinates, description);
+        emit ClaimMinted(claimId2, earthWalletAddress, title, coordinates, description);
         claimCounter += 2;
     }
 
     function linkEarthWallet(address walletAddress) external onlyOwner {
-      require(earthWalletAddress == address(0), "Earth wallet already linked");
-      earthWalletAddress = walletAddress;
+        require(earthWalletAddress == address(0), "Earth wallet already linked");
+        earthWalletAddress = walletAddress;
     }
 
-    function ownerOf(uint256 claimId) public view returns (address) {
+    function ownerOf(uint256 claimId) public view virtual override returns (address) {
         if (claimId == earthClaimId) {
             //if the claimId is the one of the claim held by the TBA, then cast earthWalletFactory to a DeployEarthWallet type
             //then return the getAddress to find the token's TBA account
@@ -128,18 +128,25 @@ contract ClaimLogic is Initializable, ERC721Upgradeable, UUPSUpgradeable, Ownabl
         return earthWalletAddress;
     }
 
-    function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
+    function tokenURI(uint256 tokenId) public view override returns (string memory) {
+        address owner = ownerOf(tokenId);
 
-    function tokenURI (uint256 tokenId) public view override returns (string memory) {
-      require(_exists(tokenId), "Nonexistent token");
-      Claim memory c = claims[tokenId];
+        Claim memory c = claims[tokenId];
 
-      return string(abi.encodePacked(
-          "data:application/json;utf8,{",
-              '"name":"', c.title, '",',
-              '"description":"', c.description, '",',
-              '"attributes":[{"trait_type":"Coordinates","value":"', c.coordinates, '"}]',
-          "}"
-      ));
+        return string(
+            abi.encodePacked(
+                "data:application/json;utf8,{",
+                '"name":"',
+                c.title,
+                '",',
+                '"description":"',
+                c.description,
+                '",',
+                '"attributes":[{"trait_type":"Coordinates","value":"',
+                c.coordinates,
+                '"}]',
+                "}"
+            )
+        );
     }
 }
