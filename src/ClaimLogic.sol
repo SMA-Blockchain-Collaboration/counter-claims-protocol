@@ -53,7 +53,8 @@ contract ClaimLogic is Initializable, ERC721Upgradeable, UUPSUpgradeable, Ownabl
         string memory description = "The root claim that represents the Earth";
 
         //need to set claimer as either a contract, the blockchain, or sma account
-        claims[claimCounter] = Claim({claimer: initialOwner, title: title, coordinates: coordinates, description: description});
+        claims[claimCounter] =
+            Claim({claimer: initialOwner, title: title, coordinates: coordinates, description: description});
         _safeMint(initialOwner, claimCounter);
 
         earthClaim = claims[claimCounter];
@@ -94,8 +95,10 @@ contract ClaimLogic is Initializable, ERC721Upgradeable, UUPSUpgradeable, Ownabl
         uint256 claimId1 = claimCounter;
         uint256 claimId2 = claimCounter + 1;
 
-        claims[claimId1] = Claim({claimer: msg.sender, title: title, coordinates: coordinates, description: description});
-        claims[claimId2] = Claim({claimer: earthWalletAddress, title: title, coordinates: coordinates, description: description});
+        claims[claimId1] =
+            Claim({claimer: msg.sender, title: title, coordinates: coordinates, description: description});
+        claims[claimId2] =
+            Claim({claimer: earthWalletAddress, title: title, coordinates: coordinates, description: description});
 
         _safeMint(msg.sender, claimId1);
         _safeMint(earthWalletAddress, claimId2);
