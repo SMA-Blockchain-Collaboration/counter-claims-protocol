@@ -13,27 +13,25 @@ contract ClaimLogicTest is Test {
     BeaconProxy proxy;
 
     ClaimLogic proxyLogic;
-    DeployEarthWallet earthFactory;
 
     //this test is causing an error
     function setUp() public {
-        //deploy an earth factory
-        earthFactory = new DeployEarthWallet();
-
         // Deploy the initial implementation
         logic = new ClaimLogic();
-
-        //line below caused the error, because logic is being initialized indirectly in proxy
-        //logic.initialize(address(this)); // Pass the test contract as the owner
 
         // Deploy the beacon with the initial implementation
         beacon = new UpgradeableBeacon(address(logic), address(this));
 
+        bytes memory initData = abi.encodeWithSelector(
+            ClaimLogic.initialize.selector,
+            address(this)
+        );
+
         // Deploy the proxy pointing to the beacon
         proxy = new BeaconProxy(
-            address(beacon),
-            abi.encodeWithSelector(ClaimLogic.initialize.selector, address(this), address(earthFactory))
+            address(beacon), initData
         );
+
         proxyLogic = ClaimLogic(address(proxy));
     }
 
@@ -41,7 +39,6 @@ contract ClaimLogicTest is Test {
     function testInitialize() public {
         // Verify initialization
         assertEq(proxyLogic.owner(), address(this));
-        assertEq(proxyLogic.earthWalletFactory(), address(earthFactory));
     }
 
     function testMintClaim() public {

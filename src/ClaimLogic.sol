@@ -6,8 +6,6 @@ import "lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/Initializab
 import "lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/UUPSUpgradeable.sol";
 import "lib/openzeppelin-contracts-upgradeable/contracts/access/OwnableUpgradeable.sol";
 
-import "./DeployEarthWallet.sol";
-
 contract ClaimLogic is Initializable, ERC721Upgradeable, UUPSUpgradeable, OwnableUpgradeable {
     struct Claim {
         address claimer;
@@ -17,13 +15,16 @@ contract ClaimLogic is Initializable, ERC721Upgradeable, UUPSUpgradeable, Ownabl
     }
 
     mapping(uint256 => Claim) public claims;
+    mapping(uint256 => uint256) public parentOf;       // childId => parentId
+    mapping(uint256 => uint256[]) public childrenOf;   // parentId => array of childIds
     uint256 public claimCounter;
 
+    //Second wallet to mint token to
+    //This should be the SMA wallet address
+    address public secondClaimerWallet;
+
     //Earth specific variables
-    Claim public earthClaim;
     uint256 public earthClaimId;
-    address public earthWalletFactory;
-    address public earthWalletAddress;
     bool public isEarthClaimMinted;
 
     //events that claims have been minted
@@ -40,12 +41,14 @@ contract ClaimLogic is Initializable, ERC721Upgradeable, UUPSUpgradeable, Ownabl
         _disableInitializers();
     }
 
-    function initialize(address initialOwner, address factoryAddress) public initializer {
+    function initialize(address initialOwner, address factoryAddress, address _secondClaimerWallet) public initializer {
         __Ownable_init(initialOwner); // Set the owner
         __ERC721_init("ClaimToken", "CLM");
         __UUPSUpgradeable_init(); // Initialize UUPSUpgradeable
 
         require(!isEarthClaimMinted, "Earth claim already exists");
+
+        secondClaimerWallet = _secondClaimerWallet;
 
         //if claimId or earthClaim or earthWalletAddress exists, then does not run code below
         string memory title = "Earth";
@@ -57,9 +60,7 @@ contract ClaimLogic is Initializable, ERC721Upgradeable, UUPSUpgradeable, Ownabl
             Claim({claimer: initialOwner, title: title, coordinates: coordinates, description: description});
         _safeMint(initialOwner, claimCounter);
 
-        earthClaim = claims[claimCounter];
         earthClaimId = claimCounter;
-        earthWalletFactory = factoryAddress;
         isEarthClaimMinted = true;
 
         claimCounter++;
@@ -90,7 +91,6 @@ contract ClaimLogic is Initializable, ERC721Upgradeable, UUPSUpgradeable, Ownabl
         require(bytes(title).length > 0, "Title cannot be empty");
         require(bytes(coordinates).length > 0, "Coordinates cannot be empty");
         require(bytes(description).length > 0, "Description cannot be empty");
-        require(earthWalletAddress != address(0), "Earth wallet not linked yet");
 
         uint256 claimId1 = claimCounter;
         uint256 claimId2 = claimCounter + 1;
@@ -98,28 +98,27 @@ contract ClaimLogic is Initializable, ERC721Upgradeable, UUPSUpgradeable, Ownabl
         claims[claimId1] =
             Claim({claimer: msg.sender, title: title, coordinates: coordinates, description: description});
         claims[claimId2] =
-            Claim({claimer: earthWalletAddress, title: title, coordinates: coordinates, description: description});
+            Claim({claimer: secondClaimerWallet, title: title, coordinates: coordinates, description: description});
+
+        parentOf[claimId1] = earthClaimId;
+        parentOf[claimId2] = earthClaimId;
+        childrenOf[earthClaimId].push(claimId1);
+        childrenOf[earthClaimId].push(claimId2);
 
         _safeMint(msg.sender, claimId1);
-        _safeMint(earthWalletAddress, claimId2);
+        _safeMint(secondClaimerWallet, claimId2);
 
         //emit that both claims have been minted
         emit ClaimMinted(claimId1, msg.sender, title, coordinates, description);
-        emit ClaimMinted(claimId2, earthWalletAddress, title, coordinates, description);
         claimCounter += 2;
     }
 
-    function linkEarthWallet(address walletAddress) external onlyOwner {
-        require(earthWalletAddress == address(0), "Earth wallet already linked");
-        earthWalletAddress = walletAddress;
+
+    function setSecondClaimerWallet(address _wallet) public onlyOwner {
+      secondClaimerWallet = _wallet;
     }
 
     function ownerOf(uint256 claimId) public view virtual override returns (address) {
-        if (claimId == earthClaimId) {
-            //if the claimId is the one of the claim held by the TBA, then cast earthWalletFactory to a DeployEarthWallet type
-            //then return the getAddress to find the token's TBA account
-            return DeployEarthWallet(earthWalletFactory).getAddress(address(this), claimId);
-        }
         return super.ownerOf(claimId);
     }
 
@@ -127,8 +126,20 @@ contract ClaimLogic is Initializable, ERC721Upgradeable, UUPSUpgradeable, Ownabl
         return claims[claimId].claimer;
     }
 
-    function getEarthWallet() external view returns (address) {
-        return earthWalletAddress;
+    function getParent(uint256 tokenId) external view returns (uint256) {
+        return parentOf[tokenId];
+    }
+
+    function getChildren(uint256 parentId) external view returns (uint256[] memory) {
+        return childrenOf[parentId];
+    }
+
+    function isChildOf(uint256 childId, uint256 parentId) public view returns (bool) {
+        return parentOf[childId] == parentId;
+    }
+
+    function isParentOf(uint256 parentId, uint256 childId) public view returns (bool) {
+        return isChildOf(childId, parentId);
     }
 
     function tokenURI(uint256 tokenId) public view override returns (string memory) {
