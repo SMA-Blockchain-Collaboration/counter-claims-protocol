@@ -10,7 +10,6 @@ import "@openzeppelin/contracts/proxy/beacon/BeaconProxy.sol";
 
 contract DeployContractsWithParentChild is Script {
     function run() external {
-
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
         address initialOwner = vm.envAddress("INITIAL_OWNER");
         address secondClaimer = vm.envAddress("SECOND_CLAIMER");
@@ -24,16 +23,10 @@ contract DeployContractsWithParentChild is Script {
         ClaimBeacon beacon = new ClaimBeacon(address(logic), msg.sender);
 
         // Encode data for initialize call
-        bytes memory initData = abi.encodeWithSignature(
-            "initialize(address,address)",
-            initialOwner,
-            secondClaimer
-        );
+        bytes memory initData = abi.encodeWithSignature("initialize(address,address)", initialOwner, secondClaimer);
 
         // Deploy the proxy
-        ClaimProxy proxy = new ClaimProxy(
-            address(beacon), initData
-        );
+        ClaimProxy proxy = new ClaimProxy(address(beacon), initData);
 
         ClaimLogic claimLogic = ClaimLogic(address(proxy));
 

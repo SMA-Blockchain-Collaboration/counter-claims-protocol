@@ -15,8 +15,8 @@ contract ClaimLogic is Initializable, ERC721Upgradeable, UUPSUpgradeable, Ownabl
     }
 
     mapping(uint256 => Claim) public claims;
-    mapping(uint256 => uint256) public parentOf;       // childId => parentId
-    mapping(uint256 => uint256[]) public childrenOf;   // parentId => array of childIds
+    mapping(uint256 => uint256) public parentOf; // childId => parentId
+    mapping(uint256 => uint256[]) public childrenOf; // parentId => array of childIds
     uint256 public claimCounter;
 
     //Second wallet to mint token to
@@ -41,7 +41,10 @@ contract ClaimLogic is Initializable, ERC721Upgradeable, UUPSUpgradeable, Ownabl
         _disableInitializers();
     }
 
-    function initialize(address initialOwner, address factoryAddress, address _secondClaimerWallet) public initializer {
+    function initialize(address initialOwner, address factoryAddress, address _secondClaimerWallet)
+        public
+        initializer
+    {
         __Ownable_init(initialOwner); // Set the owner
         __ERC721_init("ClaimToken", "CLM");
         __UUPSUpgradeable_init(); // Initialize UUPSUpgradeable
@@ -113,9 +116,8 @@ contract ClaimLogic is Initializable, ERC721Upgradeable, UUPSUpgradeable, Ownabl
         claimCounter += 2;
     }
 
-
     function setSecondClaimerWallet(address _wallet) public onlyOwner {
-      secondClaimerWallet = _wallet;
+        secondClaimerWallet = _wallet;
     }
 
     function ownerOf(uint256 claimId) public view virtual override returns (address) {
