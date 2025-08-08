@@ -41,10 +41,7 @@ contract ClaimLogic is Initializable, ERC721Upgradeable, UUPSUpgradeable, Ownabl
         _disableInitializers();
     }
 
-    function initialize(address initialOwner, address factoryAddress, address _secondClaimerWallet)
-        public
-        initializer
-    {
+    function initialize(address initialOwner, address _secondClaimerWallet) public initializer {
         __Ownable_init(initialOwner); // Set the owner
         __ERC721_init("ClaimToken", "CLM");
         __UUPSUpgradeable_init(); // Initialize UUPSUpgradeable

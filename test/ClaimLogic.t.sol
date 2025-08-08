@@ -6,7 +6,9 @@ import "../src/ClaimLogic.sol";
 import "@openzeppelin/contracts/proxy/beacon/UpgradeableBeacon.sol";
 import "@openzeppelin/contracts/proxy/beacon/BeaconProxy.sol";
 
-contract ClaimLogicTest is Test {
+import "openzeppelin-contracts/contracts/token/ERC721/IERC721Receiver.sol";
+
+contract ClaimLogicTest is Test, IERC721Receiver {
     ClaimLogic logic;
     ClaimLogic newLogic;
     UpgradeableBeacon beacon;
@@ -22,12 +24,23 @@ contract ClaimLogicTest is Test {
         // Deploy the beacon with the initial implementation
         beacon = new UpgradeableBeacon(address(logic), address(this));
 
-        bytes memory initData = abi.encodeWithSelector(ClaimLogic.initialize.selector, address(this));
+        address secondClaimerWallet = address(0x456);
+
+        bytes memory initData =
+            abi.encodeWithSelector(ClaimLogic.initialize.selector, address(this), secondClaimerWallet);
 
         // Deploy the proxy pointing to the beacon
         proxy = new BeaconProxy(address(beacon), initData);
 
         proxyLogic = ClaimLogic(address(proxy));
+    }
+
+    function onERC721Received(address operator, address from, uint256 tokenId, bytes calldata data)
+        external
+        override
+        returns (bytes4)
+    {
+        return this.onERC721Received.selector;
     }
 
     //warning here
