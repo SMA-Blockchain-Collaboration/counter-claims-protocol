@@ -6,7 +6,9 @@ import "../src/ClaimLogic.sol";
 import "../src/ClaimBeacon.sol";
 import "../src/ClaimProxy.sol";
 
-contract ClaimProxyTest is Test {
+import IERC721Receiver from "openzeppelin-contracts/token/ERC721/IERC721Receiver.sol";
+
+contract ClaimProxyTest is Test, IERC721Receiver {
     ClaimLogic logic;
     ClaimBeacon beacon;
     ClaimProxy proxy;
@@ -17,6 +19,15 @@ contract ClaimProxyTest is Test {
 
         // Deploy proxy
         proxy = new ClaimProxy(address(beacon), "");
+    }
+
+    function onERC721Received(
+        address operator,
+        address from,
+        uint256 tokenId,
+        bytes calldata data
+    ) external pure override returns (bytes4) {
+        return IERC721Receiver.onERC721Received.selector;
     }
 
     function testProxyDelegatesCall() public {
