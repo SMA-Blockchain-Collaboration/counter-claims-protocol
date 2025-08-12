@@ -24,10 +24,9 @@ contract ClaimLogicTest is Test, IERC721Receiver {
         // Deploy the beacon with the initial implementation
         beacon = new UpgradeableBeacon(address(logic), address(this));
 
-        address secondClaimerWallet = address(0x456);
+        address secondClaimerWallet = address(0x456); 
 
-        bytes memory initData =
-            abi.encodeWithSelector(ClaimLogic.initialize.selector, address(this), secondClaimerWallet);
+        bytes memory initData = abi.encodeWithSelector(ClaimLogic.initialize.selector, address(this), secondClaimerWallet);
 
         // Deploy the proxy pointing to the beacon
         proxy = new BeaconProxy(address(beacon), initData);
@@ -35,11 +34,31 @@ contract ClaimLogicTest is Test, IERC721Receiver {
         proxyLogic = ClaimLogic(address(proxy));
     }
 
-    function onERC721Received(address operator, address from, uint256 tokenId, bytes calldata data)
-        external
-        override
-        returns (bytes4)
-    {
+    function testGasMint2Claims() public {
+        // Optional: set a specific gas price for cost calculations
+        vm.txGasPrice(8 gwei);
+
+        uint256 gasStart = gasleft();
+
+        // Call mint2Claims with realistic parameters
+        claimLogic.mint2Claims("Test Title", "0,0", "Test Description");
+
+        uint256 gasUsed = gasStart - gasleft();
+
+        emit log_named_uint("Gas used", gasUsed);
+        emit log_named_decimal_uint(
+            "Cost in ETH",
+            gasUsed * tx.gasprice,
+            18
+        );
+    }
+    
+    function onERC721Received(
+        address operator,
+        address from,
+        uint256 tokenId,
+        bytes calldata data
+    ) external override returns (bytes4) {
         return this.onERC721Received.selector;
     }
 
