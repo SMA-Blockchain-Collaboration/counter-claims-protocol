@@ -39,9 +39,8 @@ contract ClaimLogicTest is Test, IERC721Receiver {
         vm.txGasPrice(8 gwei);
 
         uint256 gasStart = gasleft();
-
         // Call mint2Claims with realistic parameters
-        claimLogic.mint2Claims("Test Title", "0,0", "Test Description");
+        proxyLogic.mint2Claims("Test Title", "0,0", "Test Description");
 
         uint256 gasUsed = gasStart - gasleft();
 
