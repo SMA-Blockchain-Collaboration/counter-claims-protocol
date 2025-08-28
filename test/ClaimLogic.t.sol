@@ -24,9 +24,10 @@ contract ClaimLogicTest is Test, IERC721Receiver {
         // Deploy the beacon with the initial implementation
         beacon = new UpgradeableBeacon(address(logic), address(this));
 
-        address secondClaimerWallet = address(0x456); 
+        address secondClaimerWallet = address(0x456);
 
-        bytes memory initData = abi.encodeWithSelector(ClaimLogic.initialize.selector, address(this), secondClaimerWallet);
+        bytes memory initData =
+            abi.encodeWithSelector(ClaimLogic.initialize.selector, address(this), secondClaimerWallet);
 
         // Deploy the proxy pointing to the beacon
         proxy = new BeaconProxy(address(beacon), initData);
@@ -45,19 +46,14 @@ contract ClaimLogicTest is Test, IERC721Receiver {
         uint256 gasUsed = gasStart - gasleft();
 
         emit log_named_uint("Gas used", gasUsed);
-        emit log_named_decimal_uint(
-            "Cost in ETH",
-            gasUsed * tx.gasprice,
-            18
-        );
+        emit log_named_decimal_uint("Cost in ETH", gasUsed * tx.gasprice, 18);
     }
-    
-    function onERC721Received(
-        address operator,
-        address from,
-        uint256 tokenId,
-        bytes calldata data
-    ) external override returns (bytes4) {
+
+    function onERC721Received(address operator, address from, uint256 tokenId, bytes calldata data)
+        external
+        override
+        returns (bytes4)
+    {
         return this.onERC721Received.selector;
     }
 
@@ -72,8 +68,13 @@ contract ClaimLogicTest is Test, IERC721Receiver {
         proxyLogic.mintClaim("Title", "123.456,789.012", "Description", "ipfs://QmDummyHash1234567890abcdef");
 
         // Verify the claim details
-        (address claimer, string memory title, string memory coordinates, string memory description, string memory imageURI) =
-            proxyLogic.claims(1);
+        (
+            address claimer,
+            string memory title,
+            string memory coordinates,
+            string memory description,
+            string memory imageURI
+        ) = proxyLogic.claims(1);
 
         assertEq(claimer, address(this));
         assertEq(title, "Title");

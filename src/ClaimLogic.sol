@@ -13,8 +13,8 @@ contract ClaimLogic is Initializable, ERC721Upgradeable, UUPSUpgradeable, Ownabl
         string coordinates;
         string description;
         string imageURI;
-        //string metadataURI;
     }
+    //string metadataURI;
 
     mapping(uint256 => Claim) public claims;
     mapping(uint256 => uint256) public parentOf; // childId => parentId
@@ -56,11 +56,18 @@ contract ClaimLogic is Initializable, ERC721Upgradeable, UUPSUpgradeable, Ownabl
         string memory title = "Earth";
         string memory coordinates = "0,0";
         string memory description = "The root claim that represents the Earth";
+
+        //subject to change for Earth claim image
         string memory imageURI = "ipfs://QmDummyHash1234567890abcdef";
 
         //need to set claimer as either a contract, the blockchain, or sma account
-        claims[claimCounter] =
-            Claim({claimer: initialOwner, title: title, coordinates: coordinates, description: description, imageURI: imageURI});
+        claims[claimCounter] = Claim({
+            claimer: initialOwner,
+            title: title,
+            coordinates: coordinates,
+            description: description,
+            imageURI: imageURI
+        });
         _safeMint(initialOwner, claimCounter);
 
         earthClaimId = claimCounter;
@@ -75,13 +82,24 @@ contract ClaimLogic is Initializable, ERC721Upgradeable, UUPSUpgradeable, Ownabl
 
     function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
 
-    function mintClaim(string memory title, string memory coordinates, string memory description, string memory imageURI) public {
+    function mintClaim(
+        string memory title,
+        string memory coordinates,
+        string memory description,
+        string memory imageURI
+    ) public {
         require(bytes(title).length > 0, "Title cannot be empty");
         require(bytes(coordinates).length > 0, "Coordinates cannot be empty");
         require(bytes(description).length > 0, "Description cannot be empty");
 
         uint256 claimId = claimCounter;
-        claims[claimId] = Claim({claimer: msg.sender, title: title, coordinates: coordinates, description: description, imageURI: imageURI});
+        claims[claimId] = Claim({
+            claimer: msg.sender,
+            title: title,
+            coordinates: coordinates,
+            description: description,
+            imageURI: imageURI
+        });
         _safeMint(msg.sender, claimId);
 
         emit ClaimMinted(claimId, msg.sender, title, coordinates, description);
@@ -90,7 +108,12 @@ contract ClaimLogic is Initializable, ERC721Upgradeable, UUPSUpgradeable, Ownabl
 
     // mint two claims that have the same title, coordinates, and description
     // one of the claims goes to the user, while the other claim is held by the Earth claim
-    function mint2Claims(string memory title, string memory coordinates, string memory description, string memory imageURI) public {
+    function mint2Claims(
+        string memory title,
+        string memory coordinates,
+        string memory description,
+        string memory imageURI
+    ) public {
         require(bytes(title).length > 0, "Title cannot be empty");
         require(bytes(coordinates).length > 0, "Coordinates cannot be empty");
         require(bytes(description).length > 0, "Description cannot be empty");
@@ -99,10 +122,20 @@ contract ClaimLogic is Initializable, ERC721Upgradeable, UUPSUpgradeable, Ownabl
         uint256 claimId1 = claimCounter;
         uint256 claimId2 = claimCounter + 1;
 
-        claims[claimId1] =
-            Claim({claimer: msg.sender, title: title, coordinates: coordinates, description: description, imageURI: imageURI});
-        claims[claimId2] =
-            Claim({claimer: secondClaimerWallet, title: title, coordinates: coordinates, description: description, imageURI: imageURI});
+        claims[claimId1] = Claim({
+            claimer: msg.sender,
+            title: title,
+            coordinates: coordinates,
+            description: description,
+            imageURI: imageURI
+        });
+        claims[claimId2] = Claim({
+            claimer: secondClaimerWallet,
+            title: title,
+            coordinates: coordinates,
+            description: description,
+            imageURI: imageURI
+        });
 
         parentOf[claimId1] = earthClaimId;
         parentOf[claimId2] = earthClaimId;
@@ -159,7 +192,9 @@ contract ClaimLogic is Initializable, ERC721Upgradeable, UUPSUpgradeable, Ownabl
                 '"description":"',
                 c.description,
                 '",',
-                '"image":"', c.imageURI, '",',
+                '"image":"',
+                c.imageURI,
+                '",',
                 '"attributes":[{"trait_type":"Coordinates","value":"',
                 c.coordinates,
                 '"}]',
