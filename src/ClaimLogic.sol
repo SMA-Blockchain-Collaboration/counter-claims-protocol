@@ -12,6 +12,8 @@ contract ClaimLogic is Initializable, ERC721Upgradeable, UUPSUpgradeable, Ownabl
         string title;
         string coordinates;
         string description;
+        string imageURI;
+        //string metadataURI;
     }
 
     mapping(uint256 => Claim) public claims;
@@ -72,13 +74,13 @@ contract ClaimLogic is Initializable, ERC721Upgradeable, UUPSUpgradeable, Ownabl
 
     function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
 
-    function mintClaim(string memory title, string memory coordinates, string memory description) public {
+    function mintClaim(string memory title, string memory coordinates, string memory description, string memory imageURI) public {
         require(bytes(title).length > 0, "Title cannot be empty");
         require(bytes(coordinates).length > 0, "Coordinates cannot be empty");
         require(bytes(description).length > 0, "Description cannot be empty");
 
         uint256 claimId = claimCounter;
-        claims[claimId] = Claim({claimer: msg.sender, title: title, coordinates: coordinates, description: description});
+        claims[claimId] = Claim({claimer: msg.sender, title: title, coordinates: coordinates, description: description, imageURI: imageURI});
         _safeMint(msg.sender, claimId);
 
         emit ClaimMinted(claimId, msg.sender, title, coordinates, description);
@@ -87,18 +89,19 @@ contract ClaimLogic is Initializable, ERC721Upgradeable, UUPSUpgradeable, Ownabl
 
     // mint two claims that have the same title, coordinates, and description
     // one of the claims goes to the user, while the other claim is held by the Earth claim
-    function mint2Claims(string memory title, string memory coordinates, string memory description) public {
+    function mint2Claims(string memory title, string memory coordinates, string memory description, string memory imageURI) public {
         require(bytes(title).length > 0, "Title cannot be empty");
         require(bytes(coordinates).length > 0, "Coordinates cannot be empty");
         require(bytes(description).length > 0, "Description cannot be empty");
+        require(bytes(imageURI).length > 0, "Metadata URI required");
 
         uint256 claimId1 = claimCounter;
         uint256 claimId2 = claimCounter + 1;
 
         claims[claimId1] =
-            Claim({claimer: msg.sender, title: title, coordinates: coordinates, description: description});
+            Claim({claimer: msg.sender, title: title, coordinates: coordinates, description: description, imageURI: imageURI});
         claims[claimId2] =
-            Claim({claimer: secondClaimerWallet, title: title, coordinates: coordinates, description: description});
+            Claim({claimer: secondClaimerWallet, title: title, coordinates: coordinates, description: description, imageURI: imageURI});
 
         parentOf[claimId1] = earthClaimId;
         parentOf[claimId2] = earthClaimId;
@@ -155,6 +158,7 @@ contract ClaimLogic is Initializable, ERC721Upgradeable, UUPSUpgradeable, Ownabl
                 '"description":"',
                 c.description,
                 '",',
+                '"image":"', c.imageURI, '",',
                 '"attributes":[{"trait_type":"Coordinates","value":"',
                 c.coordinates,
                 '"}]',
