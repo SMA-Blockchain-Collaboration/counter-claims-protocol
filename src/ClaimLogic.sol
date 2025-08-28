@@ -56,10 +56,11 @@ contract ClaimLogic is Initializable, ERC721Upgradeable, UUPSUpgradeable, Ownabl
         string memory title = "Earth";
         string memory coordinates = "0,0";
         string memory description = "The root claim that represents the Earth";
+        string memory imageURI = "ipfs://QmDummyHash1234567890abcdef";
 
         //need to set claimer as either a contract, the blockchain, or sma account
         claims[claimCounter] =
-            Claim({claimer: initialOwner, title: title, coordinates: coordinates, description: description});
+            Claim({claimer: initialOwner, title: title, coordinates: coordinates, description: description, imageURI: imageURI});
         _safeMint(initialOwner, claimCounter);
 
         earthClaimId = claimCounter;

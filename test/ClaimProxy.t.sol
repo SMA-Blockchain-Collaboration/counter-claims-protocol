@@ -33,10 +33,10 @@ contract ClaimProxyTest is Test, IERC721Receiver {
     function testProxyDelegatesCall() public {
         // Call the logic via proxy
         ClaimLogic proxyLogic = ClaimLogic(address(proxy));
-        proxyLogic.mintClaim("Proxy Place", "987.654,321.098", "A proxy place");
+        proxyLogic.mintClaim("Proxy Place", "987.654,321.098", "A proxy place", "ipfs://QmDummyHash1234567890abcdef");
 
         // Assert: Verify state in the proxy
-        (address claimer, string memory title, string memory coordinates, string memory description) =
+        (address claimer, string memory title, string memory coordinates, string memory description, string memory imageURI) =
             proxyLogic.claims(0);
 
         assertEq(claimer, address(this));

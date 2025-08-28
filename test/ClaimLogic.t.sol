@@ -40,7 +40,7 @@ contract ClaimLogicTest is Test, IERC721Receiver {
 
         uint256 gasStart = gasleft();
         // Call mint2Claims with realistic parameters
-        proxyLogic.mint2Claims("Test Title", "0,0", "Test Description");
+        proxyLogic.mint2Claims("Test Title", "0,0", "Test Description", "ipfs://QmDummyHash1234567890abcdef");
 
         uint256 gasUsed = gasStart - gasleft();
 
@@ -69,10 +69,10 @@ contract ClaimLogicTest is Test, IERC721Receiver {
 
     function testMintClaim() public {
         // Mint a claim through the proxy
-        proxyLogic.mintClaim("Title", "123.456,789.012", "Description");
+        proxyLogic.mintClaim("Title", "123.456,789.012", "Description", "ipfs://QmDummyHash1234567890abcdef");
 
         // Verify the claim details
-        (address claimer, string memory title, string memory coordinates, string memory description) =
+        (address claimer, string memory title, string memory coordinates, string memory description, string memory imageURI) =
             proxyLogic.claims(1);
 
         assertEq(claimer, address(this));
